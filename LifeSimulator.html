@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<!--I heavily dislike the format of HTML comments.-->
+	<!--Maybe doing this all in one file was a mistake.-->
+	<style>
+		::-webkit-scrollbar { /*Nifty scrollbar.*/
+			width: 10px;
+		}
+		::-webkit-scrollbar-track {
+			background: #333333;
+		}
+		::-webkit-scrollbar-thumb {
+			background: #444444;
+		}
+		::-webkit-scrollbar-thumb:hover {
+			background: #333;
+		}
+		body { /*I'm not sure why I bother to have these here anymore. I'm pretty sure this is causing more problems than it solves.*/
+			font-family:sans-serif;
+			font-size: 16px;
+			color:#F5F5F5;
+			background-color:#000000;
+			text-align: center;
+		}
+		.page { /*The main stuff on the page. Probably.*/
+			margin-left: 300px;
+			transition: 0s;
+			max-width: 900px;
+			text-align: left;
+			line-height: 1.6;
+			position: relative;
+		}
+		.sidebar { /*Cool sidebar.*/
+			height: 100%;
+			width: 250px;
+			position: fixed;
+			top: 0; /* Stay at the top */
+			left: 0;
+			background-color: #222222;
+			overflow-x: hidden; /* Disable horizontal scroll */
+			padding: 0px 16.5px 0px 16.5px;
+			transition: 0.25s;
+			outline: 1px solid #444444;
+			transform: translateX(0px);
+		}
+		.sidebarstuff { /*Content of the cool sidebar.*/
+			height: calc(100% - 40px);
+			width: 250px;
+			position: fixed;
+			top: 0;
+			left: 0;
+			overflow-x: hidden; /*Please don't stick out of the box.*/
+			padding: 0px 16.5px 0px 16.5px;
+			transition: 0.25s;
+			transform: translateX(0px) translateY(40px);
+		}
+		.slidebtn { /*This button is a seperate object for some reason.*/
+			position: fixed;
+			width: 33px;
+			height: 33px;
+			top: 5px;
+			left: 200px;
+			font-size: 30px;
+			margin-left: 50px;
+			padding: 0px 0px 0px 0px;
+			text-decoration: none;
+			color: #F5F5F5;
+			display: block;
+			transition: 0.25s;
+			font-family:monospace;
+			font-weight: bold;
+			outline: 1px solid #444444;
+			cursor: pointer;
+			transform: translateX(0px);
+		}
+		.slidebtn:hover { /*It looks nifty when you mouse over the button.*/
+			background-color: #444;
+			outline-color: #FFFFFF;
+		}
+		.link { /*Links are blue because convention or something or other.*/
+			color: #6486DA;
+			text-decoration:none;
+			transition: 0.2s;
+		}
+		.link:hover { /*A different blue when moused over seems to be standard.*/
+			color: #86a8fd;
+			text-decoration:underline;
+		}
+		@media screen and (max-width: 900px) { /*I don't remember where I stole this from, but it makes it not break if first loaded in a small window.*/
+			.page {margin-left: 50px;}
+		}
+	</style>
+	<script>
+		//Wow, toggles.
+		var sidebarToggle = 0; //0 means the sidebar is open; 1 means the sidebar is closed. Please don't mix these up in the future and break everything.
+		window.addEventListener('resize', function(event){
+			fixsize(); //We must always be fixing this mess.
+		});
+		function fixsize() { //I feel that I shouldn't be doing it like this, but all I can make work is if/else. It barely works.
+			if(window.innerWidth < 950){
+				document.getElementById("main").style.marginLeft = "50px";
+			}
+			else{
+				if(sidebarToggle == 1){
+					var temp = (innerWidth + 50)/2 - 450 +"px";
+					document.getElementById("main").style.marginLeft = temp;
+				}
+				else{
+					if(window.innerWidth < 1216){
+						document.getElementById("main").style.marginLeft = "300px";
+					}
+					else{
+						var temp = (innerWidth - 283)/2 + 283 - 450 +"px";
+						document.getElementById("main").style.marginLeft = temp;
+					}
+				}
+			}
+		}
+		function startupfix(){ //I'm going to have to add more to this later, aren't I.
+			fixsize();
+			setTimeout(anotherfix, 100);
+		}
+		function anotherfix(){ //This makes it so it doesn't have weird movement when first loading, but also helps make the code less readable.
+			document.getElementById("main").style.transition = "0.1s"; //Wait, couldn't I just black out the screen for a second instead? Too late.
+		}
+		function sidebar() {
+  			if(sidebarToggle == 0){
+  				document.getElementById("theSidebar").style.transform = "translateX(-248px)";
+  				document.getElementById("theSidebarStuff").style.transform = "translateX(-285px) translateY(40px)";
+  				document.getElementById("slider").innerHTML = "<span title=\"Toggle the sidebar\">></span>";
+  				document.getElementById("slider").style.transform = "translateX(-248px)";
+  				//document.getElementById("theSidebar").style.color = "#222222"; I kept these just in case I couldn't get the multi-layer sidebar working.
+  				sidebarToggle = 1;
+  			}
+  			else{
+  				document.getElementById("theSidebar").style.transform = "translateX(0px)";
+  				document.getElementById("theSidebarStuff").style.transform = "translateX(0px) translateY(40px)";
+  				document.getElementById("slider").innerHTML = "<span title=\"Toggle the sidebar\"><</span>";
+  				document.getElementById("slider").style.transform = "translateX(0px)";
+  				//document.getElementById("theSidebar").style.color = "#F5F5F5"; This didn't actually work that well. I should probably delete these now.
+  				sidebarToggle = 0;
+  			}
+  			fixsize();
+  		}
+	</script>
+	<title>Life Simulator</title>
+	<link type="image/png" rel="icon" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABcWlDQ1BpY2MAACiRdZE9S8NQFIbfppZKrXTQQcQhQxWHFooFcZQIdqkObQWrLslt0gpJGpIUKa6Ci0PBQXTxa/Af6Cq4KgiCIog4+QP8WqTEc5tCi7Qn3JyH9573cO+5gJDVmeEMpADDdO1cRhJXi2ti+B0hRCAggLTMHGspv1hA3/h5pDqKhyTv1b+uZwyVVIcBgUHiWWbZLvE8cXbLtTjvEY+yilwiPiFO2HRA4luuKz6/cS77/MXZLuQWAIH3FMtdrHQxq9gG8TRx3NBrrH0efpOoaq7kKY/TmoCDHDKQIEJBDZvQ4SJJ2aSZ9falWr5lVMnD6G+hDpscZVTImyC1Rl1VyhrpKn066nzu/+fpaOkZv3tUAkKvnvc5CYT3gWbD835PPa95BgRfgGuz46/SnOa+SW90tPgxENsBLm86mnIAXO0CY8+WbMstKUhL0DTg4wIYLgIj90Bk3Z9Vex/nT0Bhm57oDjg8AqaoPrbxB74XZ+yfux1rAAAACXBIWXMAAA9hAAAPYQGoP6dpAAABRUlEQVRYw8VXMQ7DMAg0qEuWrv1a1+5d+4qs3bP2a127eHQTKZESCgZsp2GJZPngjA9DIDD2vt6nTyLLcHk9g9VGHyY8GIAbG52AM3AWDx6wRqIEj16wtJdbmwNB7qCQCQ6zE1EXy0kofn3CGbfYzz6QgnOCEcRpvR6WBHIOFLVDiUAlnxgctnIC3uqQDoBeJxwJa3AuC64MCCQmHVGxmUkUEfDcsWYnbUOM0eQoDj273nVdFodCqexmNAaGgw2JgtMfYqZ19RyfAVrTnqZUcP+JPkhYU0Ityha5J3KPLHCn3xCgWWhJgmnXtl7QgkRuVhBbqwZqFTzb22tJWPHQwkkNDrRm87k9XCRo8PPQg7kZWcasnDBLMobGR0MlUXpd6Hi5RBI1glU1QAcK76+X5t/dDZXR2/1elA6l0CJ41UREAkKpny9UNMlvxdDWAwAAAABJRU5ErkJggg==" /> <!--I don't want to deal with multiple files, so we're going with imbeds.-->
+</head>
+<body onload="startupfix()"> <!--Don't break this. Please.-->
+<div id="main" class="page">
+  <p>There's something here.</p>
+  <br>
+  one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty twenty-one twenty-two twenty-three twenty-four twenty-five twenty-six twenty-seven twenty-eight twenty-nine thirty thirty-one thirty-two thirty-three thirty-four thirty-five thirty-six thirty-seven thirty-eight thirty-nine fourty
+  <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+  <p>There's also something here.</p>
+</div>
+<div id="theSidebar" class="sidebar"> <!--This sidebar layer is just a background rectangle because I don't know what I'm doing.-->
+</div>
+<div id="theSidebarStuff" class="sidebarstuff"> <!--Oh god, I'm going to have to change this stuff a lot, aren't I?-->
+	<p style="font-size: 28px;"><b>Life Simulator</b></p>
+	<br><br><br>
+	<p>Life Simulator Version 0.0.1</p>
+	<p>I guess this would be called a<br>'pre-alpha' or something like that.</p>
+	<br><br>
+	<p>GitHub link: <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" class="link"><span title="It's just not here.">Nonexistent</span></a></p>
+	<p>Steal all my code if you want.<br>I don't care.</p>
+	<br><br>
+	<p>I should add an options button or something here at some point.</p>
+	<img width=300 height=32 src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABcWlDQ1BpY2MAACiRdZE9S8NQFIbfppZKrXTQQcQhQxWHFooFcZQIdqkObQWrLslt0gpJGpIUKa6Ci0PBQXTxa/Af6Cq4KgiCIog4+QP8WqTEc5tCi7Qn3JyH9573cO+5gJDVmeEMpADDdO1cRhJXi2ti+B0hRCAggLTMHGspv1hA3/h5pDqKhyTv1b+uZwyVVIcBgUHiWWbZLvE8cXbLtTjvEY+yilwiPiFO2HRA4luuKz6/cS77/MXZLuQWAIH3FMtdrHQxq9gG8TRx3NBrrH0efpOoaq7kKY/TmoCDHDKQIEJBDZvQ4SJJ2aSZ9falWr5lVMnD6G+hDpscZVTImyC1Rl1VyhrpKn066nzu/+fpaOkZv3tUAkKvnvc5CYT3gWbD835PPa95BgRfgGuz46/SnOa+SW90tPgxENsBLm86mnIAXO0CY8+WbMstKUhL0DTg4wIYLgIj90Bk3Z9Vex/nT0Bhm57oDjg8AqaoPrbxB74XZ+yfux1rAAAACXBIWXMAAA9hAAAPYQGoP6dpAAABRUlEQVRYw8VXMQ7DMAg0qEuWrv1a1+5d+4qs3bP2a127eHQTKZESCgZsp2GJZPngjA9DIDD2vt6nTyLLcHk9g9VGHyY8GIAbG52AM3AWDx6wRqIEj16wtJdbmwNB7qCQCQ6zE1EXy0kofn3CGbfYzz6QgnOCEcRpvR6WBHIOFLVDiUAlnxgctnIC3uqQDoBeJxwJa3AuC64MCCQmHVGxmUkUEfDcsWYnbUOM0eQoDj273nVdFodCqexmNAaGgw2JgtMfYqZ19RyfAVrTnqZUcP+JPkhYU0Ityha5J3KPLHCn3xCgWWhJgmnXtl7QgkRuVhBbqwZqFTzb22tJWPHQwkkNDrRm87k9XCRo8PPQg7kZWcasnDBLMobGR0MlUXpd6Hi5RBI1glU1QAcK76+X5t/dDZXR2/1elA6l0CJ41UREAkKpny9UNMlvxdDWAwAAAABJRU5ErkJggg==">
+	<br>
+	Wow.
+</div>
+<div> <!--Keep this at the bottom so it stays as the top layer.-->
+<a id="slider" class="slidebtn" onclick= "sidebar()"> <span title="Toggle the sidebar"><</span> </a>
+<div>
+</body>
