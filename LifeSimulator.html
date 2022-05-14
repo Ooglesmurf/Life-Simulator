@@ -4,17 +4,17 @@
 	<!--I heavily dislike the format of HTML comments.-->
 	<!--Maybe doing this all in one file was a mistake.-->
 	<style>
-		::-webkit-scrollbar { /*Nifty scrollbar.*/
+		::-webkit-scrollbar { /*Nifty scrollbar. It doesn't work in all browsers tho...*/
 			width: 10px;
 		}
 		::-webkit-scrollbar-track {
-			background: #333333;
+			background: #2a2a2a;
 		}
 		::-webkit-scrollbar-thumb {
 			background: #444444;
 		}
 		::-webkit-scrollbar-thumb:hover {
-			background: #333;
+			background: #373737;
 		}
 		body { /*I'm not sure why I bother to have these here anymore. I'm pretty sure this is causing more problems than it solves.*/
 			font-family:sans-serif;
@@ -26,19 +26,20 @@
 		.page { /*The main stuff on the page. Probably.*/
 			margin-left: 300px;
 			transition: 0s;
+			line-height: 1.6;
 			max-width: 900px;
 			text-align: left;
-			line-height: 1.6;
 			position: relative;
+			padding: 50px 0px 50px 0px;
 		}
 		.sidebar { /*Cool sidebar.*/
 			height: 100%;
 			width: 250px;
 			position: fixed;
-			top: 0; /* Stay at the top */
+			top: 0; /*Please stay at the top.*/
 			left: 0;
 			background-color: #222222;
-			overflow-x: hidden; /* Disable horizontal scroll */
+			overflow-x: hidden; /*Disables horizontal scroll. I hope.*/
 			padding: 0px 16.5px 0px 16.5px;
 			transition: 0.25s;
 			outline: 1px solid #444444;
@@ -50,7 +51,7 @@
 			position: fixed;
 			top: 0;
 			left: 0;
-			overflow-x: hidden; /*Please don't stick out of the box.*/
+			overflow-x: hidden;
 			padding: 0px 16.5px 0px 16.5px;
 			transition: 0.25s;
 			transform: translateX(0px) translateY(40px);
@@ -70,6 +71,7 @@
 			transition: 0.25s;
 			font-family:monospace;
 			font-weight: bold;
+			background-color: #222222;
 			outline: 1px solid #444444;
 			cursor: pointer;
 			transform: translateX(0px);
@@ -77,6 +79,27 @@
 		.slidebtn:hover { /*It looks nifty when you mouse over the button.*/
 			background-color: #444;
 			outline-color: #FFFFFF;
+		}
+		.button { /*All the menu buttons.*/
+			font-style: italic;
+			font-family:monospace;
+			font-size: 20px;
+			width: 200px;
+			color: #F5F5F5;
+			display: inline-block;
+			transition: 0.25s;
+			outline: 1px solid #444444;
+			cursor: pointer;
+			padding: 7px 0px 7px 0px;
+			text-align: center;
+			background-color: #222222;
+		}
+		.button:hover { /*It looks nifty when you mouse over these buttons too.*/
+			background-color: #444;
+			outline-color: #FFFFFF;
+		}
+		.buttongap {
+			line-height: 4px;
 		}
 		.link { /*Links are blue because convention or something or other.*/
 			color: #6486DA;
@@ -87,91 +110,351 @@
 			color: #86a8fd;
 			text-decoration:underline;
 		}
-		@media screen and (max-width: 900px) { /*I don't remember where I stole this from, but it makes it not break if first loaded in a small window.*/
-			.page {margin-left: 50px;}
+		.menus { /*The options and save menus.*/
+			height: 90%;
+			position: absolute;
+			background-color: #222222;
+			overflow-x: hidden; /*Disables horizontal scroll. I hope.*/
+			padding: 0px 20px 0px 20px;
+			transition: 0.0s; /*It likes to do horizontal scrolling if this is anything other than 0.*/
+			outline: 2px solid #F5F5F5;
+			margin-left: 300px;
+			top: 5%;
+			max-width: 860px;
+			text-align: left;
+			display: none;
+		}
+		.statbars {
+			background-color: #444444;
+			border-width: 0;
+			height:5px;
+			margin-left: 0;
+			transform: translateY(-5px);
+			line-height: 0;
+		}
+		.statlvl {
+			display: inline;
+		}
+		.lvldesc {
+			color: #888888;
+			font-size: 14px;
+			line-height: 1.5;
 		}
 	</style>
 	<script>
 		//Wow, toggles.
 		var sidebarToggle = 0; //0 means the sidebar is open; 1 means the sidebar is closed. Please don't mix these up in the future and break everything.
+		var optionsMenuToggle = 0; //0 means closed, 1 means open.
+		var saveMenuToggle = 0; //0 means closed, 1 means open.
+		var area = "bedroom"; //We ought to default somewhere. Also, naming it 'location' breaks everything for some reason. Don't do that.
+		var strength = 100; //Some stats. Maybe add some start settings for them at some point.
+		var morality = 500;
+		var thievery = 0;
+		var energy = 500;
+		var social = 0;
+		var anxiety = 400;
+		var intelligence = 300;
 		window.addEventListener('resize', function(event){
-			fixsize(); //We must always be fixing this mess.
+			fixSize(); //We must always be fixing this mess.
 		});
-		function fixsize() { //I feel that I shouldn't be doing it like this, but all I can make work is if/else. It barely works.
+		function fixSize() { //I feel that I shouldn't be doing it like this, but all I can make work is if/else. It barely works.
 			if(window.innerWidth < 950){
 				document.getElementById("main").style.marginLeft = "50px";
+				document.getElementById("omenu").style.width = (window.innerWidth-150)+"px";
+				document.getElementById("omenu").style.marginLeft = "50px";
+				document.getElementById("smenu").style.width = (window.innerWidth-150)+"px";
+				document.getElementById("smenu").style.marginLeft = "50px";
 			}
 			else{
 				if(sidebarToggle == 1){
-					var temp = (innerWidth + 50)/2 - 450 +"px";
+					var temp = (window.innerWidth + 50)/2 - 450 +"px";
 					document.getElementById("main").style.marginLeft = temp;
+					document.getElementById("omenu").style.marginLeft = temp;
+					document.getElementById("smenu").style.marginLeft = temp;
 				}
 				else{
 					if(window.innerWidth < 1216){
 						document.getElementById("main").style.marginLeft = "300px";
+						document.getElementById("omenu").style.width = (window.innerWidth-400)+"px";
+						document.getElementById("omenu").style.marginLeft = "300px";
+						document.getElementById("smenu").style.marginLeft = "300px";
 					}
 					else{
-						var temp = (innerWidth - 283)/2 + 283 - 450 +"px";
+						var temp = (window.innerWidth - 283)/2 + 283 - 450 +"px";
 						document.getElementById("main").style.marginLeft = temp;
+						document.getElementById("omenu").style.width = (window.innerWidth-400)+"px";
+						document.getElementById("omenu").style.marginLeft = temp;
+						document.getElementById("smenu").style.marginLeft = temp;
 					}
 				}
-			}
+			} //Brackets = ☹
 		}
 		function startupfix(){ //I'm going to have to add more to this later, aren't I.
-			fixsize();
+			mainMenu();
+			fixSize();
 			setTimeout(anotherfix, 100);
 		}
 		function anotherfix(){ //This makes it so it doesn't have weird movement when first loading, but also helps make the code less readable.
-			document.getElementById("main").style.transition = "0.1s"; //Wait, couldn't I just black out the screen for a second instead? Too late.
+			document.getElementById("main").style.transition = "0.25s"; //Wait, couldn't I just black out the screen for a second instead? Too late.
 		}
 		function sidebar() {
-  			if(sidebarToggle == 0){
-  				document.getElementById("theSidebar").style.transform = "translateX(-248px)";
-  				document.getElementById("theSidebarStuff").style.transform = "translateX(-285px) translateY(40px)";
-  				document.getElementById("slider").innerHTML = "<span title=\"Toggle the sidebar\">></span>";
-  				document.getElementById("slider").style.transform = "translateX(-248px)";
-  				//document.getElementById("theSidebar").style.color = "#222222"; I kept these just in case I couldn't get the multi-layer sidebar working.
-  				sidebarToggle = 1;
-  			}
-  			else{
-  				document.getElementById("theSidebar").style.transform = "translateX(0px)";
-  				document.getElementById("theSidebarStuff").style.transform = "translateX(0px) translateY(40px)";
-  				document.getElementById("slider").innerHTML = "<span title=\"Toggle the sidebar\"><</span>";
-  				document.getElementById("slider").style.transform = "translateX(0px)";
-  				//document.getElementById("theSidebar").style.color = "#F5F5F5"; This didn't actually work that well. I should probably delete these now.
-  				sidebarToggle = 0;
-  			}
-  			fixsize();
+  		if(sidebarToggle == 0){
+  			document.getElementById("theSidebar").style.transform = "translateX(-248px)";
+  			document.getElementById("theSidebarStuff").style.transform = "translateX(-285px) translateY(40px)";
+ 				document.getElementById("slider").innerHTML = "<span title=\"Toggle the sidebar\">></span>";
+  			document.getElementById("slider").style.transform = "translateX(-248px)";
+  			//document.getElementById("theSidebar").style.color = "#222222"; I kept these just in case I couldn't get the multi-layer sidebar working.
+  			sidebarToggle = 1;
   		}
+ 			else{
+ 				document.getElementById("theSidebar").style.transform = "translateX(0px)";
+  			document.getElementById("theSidebarStuff").style.transform = "translateX(0px) translateY(40px)";
+  			document.getElementById("slider").innerHTML = "<span title=\"Toggle the sidebar\"><</span>";
+  			document.getElementById("slider").style.transform = "translateX(0px)";
+ 				//document.getElementById("theSidebar").style.color = "#F5F5F5"; This didn't actually work that well. I should probably delete these now.
+ 				sidebarToggle = 0;
+ 			}
+ 			fixSize();
+  	}
+  	function mainMenu() { //This seems important.
+  		document.getElementById("theSidebarStuff").innerHTML = "<p style=\"font-size: 28px;\"><b>Life Simulator</b></p><br><br><br>Life Simulator Version 0.0.2<br><br>I guess this would be called a<br>'pre-alpha' or something like that.<br><br><br><br>GitHub link: <a href=\"https://github.com/Ooglesmurf/Life-Simulator\" class=\"link\"><span title=\"Click here to go to the GitHub page.\">https://github.com/<br>Ooglesmurf/Life-Simulator</span></a><br><br><br>Steal all my code if you want.<br>I don't care.<br><br><br><a onclick=\"saveMenu();\" id=\"savbtn\" class=\"button\"><span title=\"Open the save menu.\">Save</span></a><div class=\"buttongap\">&nbsp</div><a onclick=\"optionsMenu();\" id=\"optbtn\" class=\"button\"><span title=\"Open the options menu.\">Options</span></a><br><br>";
+  		document.getElementById("main").innerHTML = "<img style=\"max-width: 100%\"src=\"data:image/png;base64,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\"><br><br>This is the life simulator. This simulator is not reality; please do not attempt anything done in this game.<br><br>I'll add saves later. Probably.<br><br>I would not be surprised at all if this thing has multiple memory leaks, so maybe be careful about that. Only if you care about that sort of thing, or course.<br><br>If something fails to load, god help you.<br><br><a class=\"link\" onclick= \"startSettings();\"><span title=\"Click here to go to the startup settings.\">Start</span></a>"; //Images sure do take up a lot of space.
+  	}
+  	function startSettings() {
+  		document.getElementById("main").innerHTML = "<br><br><br>Yeah, there's no settings here yet.<br><br>Maybe I'll add some eventually.<br><br><br><br><br><br><br><br><br><br><br><a class=\"link\" onclick= \"mainMenu();\"><span title=\"Back to the main menu.\">Main Menu</span></a><br><br><a class=\"link\" onclick= \"loadStats(); game();\"><span title=\"Click here to start the game!\">Start</span></a>";
+  	}
+  	function optionsMenu() {
+  		if(saveMenuToggle == 1){ //First, close the save menu if it's open.
+  			saveMenu();
+  		}
+  		if(optionsMenuToggle == 0){ //Glowy button when menu is open.
+  			document.getElementById("omenu").style.display = "block";
+  			document.getElementById("optbtn").style.backgroundColor = "#444";
+  			document.getElementById("optbtn").style.outlineColor = "#FFFFFF";
+  			optionsMenuToggle = 1;
+  		}
+  		else {
+  			document.getElementById("omenu").style.display = "none";
+  			document.getElementById("optbtn").style.backgroundColor = "#222222";
+  			document.getElementById("optbtn").style.outlineColor = "#444444";
+  			optionsMenuToggle = 0;
+  		}
+  	}
+  	function saveMenu() {
+  		if(optionsMenuToggle == 1){ //First, close the options menu if it's open.
+  			optionsMenu();
+  		}
+  		if(saveMenuToggle == 0){ //Glowy buttons are nifty.
+  			document.getElementById("smenu").style.display = "block";
+  			document.getElementById("savbtn").style.backgroundColor = "#444";
+  			document.getElementById("savbtn").style.outlineColor = "#FFFFFF";
+  			saveMenuToggle = 1;
+  		}
+  		else {
+  			document.getElementById("smenu").style.display = "none";
+  			document.getElementById("savbtn").style.backgroundColor = "#222222";
+  			document.getElementById("savbtn").style.outlineColor = "#444444";
+  			saveMenuToggle = 0;
+  		}
+  	}
+  	function loadStats() {
+  		document.getElementById("theSidebarStuff").innerHTML = "Mouse over stats for more info.<br><br><span id=\"strtext\" title=\"Your physical ability. This increases with exercise and decreases without.\">Strength ― Lv. <div id=\"strlvl\" class=\"statlvl\">error</div><hr class=\"statbars\"><hr id=\"strbar\" class=\"statbars\" style=\"transform: translateY(-18px);\"></span><span id=\"mortext\" title=\"Your 'goodness'. This increases with kind actions and decreases with cruel ones.\">Morality ― Lv. <div id=\"morlvl\" class=\"statlvl\">error</div><hr class=\"statbars\"><hr id=\"morbar\" class=\"statbars\" style=\"transform: translateY(-18px);\"></span><span id=\"thvtext\" title=\"Your skill at stealing and cheating. This increases by stealing and cheating and decreases if you don't for some time.\">Thievery ― Lv. <div id=\"thvlvl\" class=\"statlvl\">error</div><hr class=\"statbars\"><hr id=\"thvbar\" class=\"statbars\" style=\"transform: translateY(-18px);\"></span><span id=\"nrgtext\" title=\"Your vitality. This decreases with most actions and increases with rest.\">Energy ― Lv. <div id=\"nrglvl\" class=\"statlvl\">error</div><hr class=\"statbars\"><hr id=\"nrgbar\" class=\"statbars\" style=\"transform: translateY(-18px);\"></span><span id=\"scltext\" title=\"Your 'charisma'. This increases through positive social interactions and decreases with negative ones.\">Social ― Lv. <div id=\"scllvl\" class=\"statlvl\">error</div><hr class=\"statbars\"><hr id=\"sclbar\" class=\"statbars\" style=\"transform: translateY(-18px);\"></span><span id=\"anxtext\" title=\"Your mental state. This increases when you come under stress and decreases when calmed and relaxed.\">Anxiety ― Lv. <div id=\"anxlvl\" class=\"statlvl\">error</div><hr class=\"statbars\"><hr id=\"anxbar\" class=\"statbars\" style=\"transform: translateY(-18px);\"></span><span id=\"inttext\" title=\"Your intellect. This increases with with studying and mentally taxing activities and decreases when you make especially bad decisions.\">Intelligence ― Lv. <div id=\"intlvl\" class=\"statlvl\">error</div><hr class=\"statbars\"><hr id=\"intbar\" class=\"statbars\" style=\"transform: translateY(-18px);\"></span><br><a onclick=\"saveMenu();\" id=\"savbtn\" class=\"button\"><span title=\"Open the save menu.\">Save</span></a><div class=\"buttongap\">&nbsp</div><a onclick=\"optionsMenu();\" id=\"optbtn\" class=\"button\"><span title=\"Open the options menu.\">Options</span></a><br><br>";
+  		fixStats();
+  	}
+  	function fixStats() {
+  		document.getElementById("strbar").style.width = strength%100+"%";
+  		document.getElementById("morbar").style.width = morality%100+"%";
+  		document.getElementById("thvbar").style.width = thievery%100+"%";
+  		document.getElementById("nrgbar").style.width = energy%100+"%";
+  		document.getElementById("sclbar").style.width = social%100+"%";
+  		document.getElementById("anxbar").style.width = anxiety%100+"%";
+  		document.getElementById("intbar").style.width = intelligence%100+"%";
+  		switch(Math.trunc(strength/100)){
+  			case 10: document.getElementById("strlvl").innerHTML = 10+"<div class=\"lvldesc\">You couldn't be more powerful.</div>"; document.getElementById("strbar").style.width = 100+"%"; document.getElementById("strtext").style.color = "#B71C1C"; document.getElementById("strbar").style.backgroundColor = "#B71C1C"; break;
+  			case 9: document.getElementById("strlvl").innerHTML = 9+"<div class=\"lvldesc\">You are very powerful.</div>"; document.getElementById("strtext").style.color = "#C62828"; document.getElementById("strbar").style.backgroundColor = "#C62828"; break;
+  			case 8: document.getElementById("strlvl").innerHTML = 8+"<div class=\"lvldesc\">You are powerful.</div>"; document.getElementById("strtext").style.color = "#D32F2F"; document.getElementById("strbar").style.backgroundColor = "#D32F2F"; break;
+  			case 7: document.getElementById("strlvl").innerHTML = 7+"<div class=\"lvldesc\">You are very strong.</div>"; document.getElementById("strtext").style.color = "#E53935"; document.getElementById("strbar").style.backgroundColor = "#E53935"; break;
+  			case 6: document.getElementById("strlvl").innerHTML = 6+"<div class=\"lvldesc\">You are strong.</div>"; document.getElementById("strtext").style.color = "#F44336"; document.getElementById("strbar").style.backgroundColor = "#F44336"; break;
+  			case 5: document.getElementById("strlvl").innerHTML = 5+"<div class=\"lvldesc\">You are a little strong.</div>"; document.getElementById("strtext").style.color = "#EF5350"; document.getElementById("strbar").style.backgroundColor = "#EF5350"; break;
+  			case 4: document.getElementById("strlvl").innerHTML = 4+"<div class=\"lvldesc\">You are of average strength.</div>"; document.getElementById("strtext").style.color = "#E57373"; document.getElementById("strbar").style.backgroundColor = "#E57373"; break;
+  			case 3: document.getElementById("strlvl").innerHTML = 3+"<div class=\"lvldesc\">You are a little weak.</div>"; document.getElementById("strtext").style.color = "#EF9A9A"; document.getElementById("strbar").style.backgroundColor = "#EF9A9A"; break;
+  			case 2: document.getElementById("strlvl").innerHTML = 2+"<div class=\"lvldesc\">You are weak.</div>"; document.getElementById("strtext").style.color = "#FFCDD2"; document.getElementById("strbar").style.backgroundColor = "#FFCDD2"; break;
+  			case 1: document.getElementById("strlvl").innerHTML = 1+"<div class=\"lvldesc\">You are very weak.</div>"; document.getElementById("strtext").style.color = "#FFEBEE"; document.getElementById("strbar").style.backgroundColor = "#FFEBEE"; break;
+  			case 0: document.getElementById("strtext").style.color = "#F5F5F5"; document.getElementById("strbar").style.backgroundColor = "#F5F5F5";
+  							if(strength == 0){document.getElementById("strlvl").innerHTML = 0+"<div class=\"lvldesc\">You couldn't be any weaker.</div>";}
+  							else{document.getElementById("strlvl").innerHTML = 0+"<div class=\"lvldesc\">You are extremely weak.</div>";} break;
+  			default: document.getElementById("strlvl").innerHTML = "error<div class=\"lvldesc\">How did you manage this?</div>";
+  		}
+  		switch(Math.trunc(morality/100)){
+  			case 10: document.getElementById("morlvl").innerHTML = 10+"<div class=\"lvldesc\">You couldn't be more of an angel.</div>"; document.getElementById("morbar").style.width = 100+"%"; document.getElementById("mortext").style.color = "#F5F5F5"; document.getElementById("morbar").style.backgroundColor = "#F5F5F5"; break;
+  			case 9: document.getElementById("morlvl").innerHTML = 9+"<div class=\"lvldesc\">You are selfless.</div>"; document.getElementById("mortext").style.color = "#FFF3E0"; document.getElementById("morbar").style.backgroundColor = "#FFF3E0"; break;
+  			case 8: document.getElementById("morlvl").innerHTML = 8+"<div class=\"lvldesc\">You are very kind.</div>"; document.getElementById("mortext").style.color = "#FFE0B2"; document.getElementById("morbar").style.backgroundColor = "#FFE0B2"; break;
+  			case 7: document.getElementById("morlvl").innerHTML = 7+"<div class=\"lvldesc\">You are kind.</div>"; document.getElementById("mortext").style.color = "#FFCC80"; document.getElementById("morbar").style.backgroundColor = "#FFCC80"; break;
+  			case 6: document.getElementById("morlvl").innerHTML = 6+"<div class=\"lvldesc\">You are somewhat kind.</div>"; document.getElementById("mortext").style.color = "#FFB74D"; document.getElementById("morbar").style.backgroundColor = "#FFB74D"; break;
+  			case 5: document.getElementById("morlvl").innerHTML = 5+"<div class=\"lvldesc\">You are indifferent.</div>"; document.getElementById("mortext").style.color = "#FFA726"; document.getElementById("morbar").style.backgroundColor = "#FFA726"; break;
+  			case 4: document.getElementById("morlvl").innerHTML = 4+"<div class=\"lvldesc\">You are somewhat mean.</div>"; document.getElementById("mortext").style.color = "#FF9800"; document.getElementById("morbar").style.backgroundColor = "#FF9800"; break;
+  			case 3: document.getElementById("morlvl").innerHTML = 3+"<div class=\"lvldesc\">You are mean.</div>"; document.getElementById("mortext").style.color = "#FB8C00"; document.getElementById("morbar").style.backgroundColor = "#FB8C00"; break;
+  			case 2: document.getElementById("morlvl").innerHTML = 2+"<div class=\"lvldesc\">You are cruel.</div>"; document.getElementById("mortext").style.color = "#F57C00"; document.getElementById("morbar").style.backgroundColor = "#F57C00"; break;
+  			case 1: document.getElementById("morlvl").innerHTML = 1+"<div class=\"lvldesc\">You are evil.</div>"; document.getElementById("mortext").style.color = "#E65100"; document.getElementById("morbar").style.backgroundColor = "#EF6C00"; break;
+  			case 0: document.getElementById("mortext").style.color = "#B71C1C"; document.getElementById("morbar").style.backgroundColor = "#B71C1C";
+  							if(morality == 0){document.getElementById("morlvl").innerHTML = 0+"<div class=\"lvldesc\">You couldn't be any more evil.</div>";}
+  							else{document.getElementById("morlvl").innerHTML = 0+"<div class=\"lvldesc\">You are extremely evil.</div>";} break;
+  			default: document.getElementById("morlvl").innerHTML = "error<div class=\"lvldesc\">How did you manage this?</div>";
+  		}
+  		switch(Math.trunc(thievery/100)){
+  			case 10: document.getElementById("thvlvl").innerHTML = 10+"<div class=\"lvldesc\">You are a perfect thief.</div>"; document.getElementById("thvbar").style.width = 100+"%"; document.getElementById("thvtext").style.color = "#5A148C"; document.getElementById("thvbar").style.backgroundColor = "#5A148C"; break;
+  			case 9: document.getElementById("thvlvl").innerHTML = 9+"<div class=\"lvldesc\">You are an amazing thief.</div>";+"%"; document.getElementById("thvtext").style.color = "#6A1B9A"; document.getElementById("thvbar").style.backgroundColor = "#6A1B9A"; break;
+  			case 8: document.getElementById("thvlvl").innerHTML = 8+"<div class=\"lvldesc\">You are a good thief.</div>"; document.getElementById("thvtext").style.color = "#7B1FA2"; document.getElementById("thvbar").style.backgroundColor = "#7B1FA2"; break;
+  			case 7: document.getElementById("thvlvl").innerHTML = 7+"<div class=\"lvldesc\">You are an okay thief.</div>"; document.getElementById("thvtext").style.color = "#8E24AA"; document.getElementById("thvbar").style.backgroundColor = "#8E24AA"; break;
+  			case 6: document.getElementById("thvlvl").innerHTML = 6+"<div class=\"lvldesc\">You are a bad thief.</div>"; document.getElementById("thvtext").style.color = "#9C27B0"; document.getElementById("thvbar").style.backgroundColor = "#9C27B0"; break;
+  			case 5: document.getElementById("thvlvl").innerHTML = 5+"<div class=\"lvldesc\">You're almost a real thief.</div>"; document.getElementById("thvtext").style.color = "#AB47BC"; document.getElementById("thvbar").style.backgroundColor = "#AB47BC"; break;
+  			case 4: document.getElementById("thvlvl").innerHTML = 4+"<div class=\"lvldesc\">You are good at thievery.</div>"; document.getElementById("thvtext").style.color = "#BA68C8"; document.getElementById("thvbar").style.backgroundColor = "#BA68C8"; break;
+  			case 3: document.getElementById("thvlvl").innerHTML = 3+"<div class=\"lvldesc\">You are decent at thievery.</div>"; document.getElementById("thvtext").style.color = "#CE93D8"; document.getElementById("thvbar").style.backgroundColor = "#CE93D8"; break;
+  			case 2: document.getElementById("thvlvl").innerHTML = 2+"<div class=\"lvldesc\">You are bad at thievery.</div>"; document.getElementById("thvtext").style.color = "#E1BEE7"; document.getElementById("thvbar").style.backgroundColor = "#E1BEE7"; break;
+  			case 1: document.getElementById("thvlvl").innerHTML = 1+"<div class=\"lvldesc\">You are awful at thievery.</div>"; document.getElementById("thvtext").style.color = "#F3E5F5"; document.getElementById("thvbar").style.backgroundColor = "#F3E5F5"; break;
+  			case 0: document.getElementById("thvtext").style.color = "#F5F5F5"; document.getElementById("thvbar").style.backgroundColor = "#F5F5F5";
+  							if(thievery == 0){document.getElementById("thvlvl").innerHTML = 0+"<div class=\"lvldesc\">You know nothing about thievery.</div>";}
+  							else{document.getElementById("thvlvl").innerHTML = 0+"<div class=\"lvldesc\">You know very little about thievery.</div>";} break;
+  			default: document.getElementById("thvlvl").innerHTML = "error<div class=\"lvldesc\">How did you manage this?</div>";
+  		}
+  		switch(Math.trunc(energy/100)){
+  			case 10: document.getElementById("nrglvl").innerHTML = 10+"<div class=\"lvldesc\">You have almost boundless energy.</div>"; document.getElementById("nrgbar").style.width = 100+"%"; document.getElementById("nrgtext").style.color = "#30FF30"; document.getElementById("nrgbar").style.backgroundColor = "#30FF30"; break;
+  			case 9: document.getElementById("nrglvl").innerHTML = 9+"<div class=\"lvldesc\">You feel extremely energized.</div>";+"%"; document.getElementById("nrgtext").style.color = "#30EE30"; document.getElementById("nrgbar").style.backgroundColor = "#30EE30"; break;
+  			case 8: document.getElementById("nrglvl").innerHTML = 8+"<div class=\"lvldesc\">You feel full of vigor.</div>"; document.getElementById("nrgtext").style.color = "#30DD30"; document.getElementById("nrgbar").style.backgroundColor = "#30DD30"; break;
+  			case 7: document.getElementById("nrglvl").innerHTML = 7+"<div class=\"lvldesc\">You feel wide awake.</div>"; document.getElementById("nrgtext").style.color = "#30CC30"; document.getElementById("nrgbar").style.backgroundColor = "#30CC30"; break;
+  			case 6: document.getElementById("nrglvl").innerHTML = 6+"<div class=\"lvldesc\">You feel awake.</div>"; document.getElementById("nrgtext").style.color = "#30BB30"; document.getElementById("nrgbar").style.backgroundColor = "#30BB30"; break;
+  			case 5: document.getElementById("nrglvl").innerHTML = 5+"<div class=\"lvldesc\">You feel normal.</div>"; document.getElementById("nrgtext").style.color = "#30AA30"; document.getElementById("nrgbar").style.backgroundColor = "#30AA30"; break;
+  			case 4: document.getElementById("nrglvl").innerHTML = 4+"<div class=\"lvldesc\">You feel a bit tired.</div>"; document.getElementById("nrgtext").style.color = "#309930"; document.getElementById("nrgbar").style.backgroundColor = "#309930"; break;
+  			case 3: document.getElementById("nrglvl").innerHTML = 3+"<div class=\"lvldesc\">You feel tired.</div>"; document.getElementById("nrgtext").style.color = "#308830"; document.getElementById("nrgbar").style.backgroundColor = "#308830"; break;
+  			case 2: document.getElementById("nrglvl").innerHTML = 2+"<div class=\"lvldesc\">You feel exhausted.</div>"; document.getElementById("nrgtext").style.color = "#307730"; document.getElementById("nrgbar").style.backgroundColor = "#307730"; break;
+  			case 1: document.getElementById("nrglvl").innerHTML = 1+"<div class=\"lvldesc\">You struggle to keep your eyes open.</div>"; document.getElementById("nrgtext").style.color = "#306630"; document.getElementById("nrgbar").style.backgroundColor = "#306630"; break;
+  			case 0: document.getElementById("nrgtext").style.color = "#305530"; document.getElementById("nrgbar").style.backgroundColor = "#305530";
+  							if(energy <= 10){document.getElementById("nrglvl").innerHTML = 0+"<div class=\"lvldesc\">You are about to collapse.</div>";}
+  							else{document.getElementById("nrglvl").innerHTML = 0+"<div class=\"lvldesc\">You feel like collapsing.</div>";} break;
+  			default: document.getElementById("nrglvl").innerHTML = "error<div class=\"lvldesc\">How did you manage this?</div>";
+  		}
+  		switch(Math.trunc(social/100)){
+  			case 10: document.getElementById("scllvl").innerHTML = 10+"<div class=\"lvldesc\">You know how to approach anyone.</div>"; document.getElementById("sclbar").style.width = 100+"%"; document.getElementById("scltext").style.color = "#F59D17"; document.getElementById("sclbar").style.backgroundColor = "#F59D17"; break;
+  			case 9: document.getElementById("scllvl").innerHTML = 9+"<div class=\"lvldesc\">You are an expert at communication.</div>";+"%"; document.getElementById("scltext").style.color = "#F9A825"; document.getElementById("sclbar").style.backgroundColor = "#F9A825"; break;
+  			case 8: document.getElementById("scllvl").innerHTML = 8+"<div class=\"lvldesc\">You are adept at communication.</div>"; document.getElementById("scltext").style.color = "#FBC02D"; document.getElementById("sclbar").style.backgroundColor = "#FBC02D"; break;
+  			case 7: document.getElementById("scllvl").innerHTML = 7+"<div class=\"lvldesc\">You are good at communication.</div>"; document.getElementById("scltext").style.color = "#FDD835"; document.getElementById("sclbar").style.backgroundColor = "#FDD835"; break;
+  			case 6: document.getElementById("scllvl").innerHTML = 6+"<div class=\"lvldesc\">You are okay at communication.</div>"; document.getElementById("scltext").style.color = "#FFEB3B"; document.getElementById("sclbar").style.backgroundColor = "#FFEB3B"; break;
+  			case 5: document.getElementById("scllvl").innerHTML = 5+"<div class=\"lvldesc\">You are bad at communication.</div>"; document.getElementById("scltext").style.color = "#FFEE58"; document.getElementById("sclbar").style.backgroundColor = "#FFEE58"; break;
+  			case 4: document.getElementById("scllvl").innerHTML = 4+"<div class=\"lvldesc\">You can talk to others.</div>"; document.getElementById("scltext").style.color = "#FFF176"; document.getElementById("sclbar").style.backgroundColor = "#FFF176"; break;
+  			case 3: document.getElementById("scllvl").innerHTML = 3+"<div class=\"lvldesc\">You can almost talk to others.</div>"; document.getElementById("scltext").style.color = "#FFF59D"; document.getElementById("sclbar").style.backgroundColor = "#FFF59D"; break;
+  			case 2: document.getElementById("scllvl").innerHTML = 2+"<div class=\"lvldesc\">You struggle with talking.</div>"; document.getElementById("scltext").style.color = "#FFF9C4"; document.getElementById("sclbar").style.backgroundColor = "#FFF9C4"; break;
+  			case 1: document.getElementById("scllvl").innerHTML = 1+"<div class=\"lvldesc\">You can barely handle interactions.</div>"; document.getElementById("scltext").style.color = "#FFFDE7"; document.getElementById("sclbar").style.backgroundColor = "#FFFDE7"; break;
+  			case 0: document.getElementById("scltext").style.color = "#F5F5F5"; document.getElementById("sclbar").style.backgroundColor = "#F5F5F5";
+  							if(social == 0){document.getElementById("scllvl").innerHTML = 0+"<div class=\"lvldesc\">You can just barely communicate.</div>";}
+  							else{document.getElementById("scllvl").innerHTML = 0+"<div class=\"lvldesc\">You struggle to communicate.</div>";} break;
+  			default: document.getElementById("scllvl").innerHTML = "error<div class=\"lvldesc\">How did you manage this?</div>";
+  		}
+  		switch(Math.trunc(anxiety/100)){
+  			case 10: document.getElementById("anxlvl").innerHTML = 10+"<div class=\"lvldesc\">You are absolutely terrified.</div>"; document.getElementById("anxbar").style.width = 100+"%"; document.getElementById("anxtext").style.color = "#263238"; document.getElementById("anxbar").style.backgroundColor = "#263238"; break;
+  			case 9: document.getElementById("anxlvl").innerHTML = 9+"<div class=\"lvldesc\">You are almost petrified.</div>";+"%"; document.getElementById("anxtext").style.color = "#37474F"; document.getElementById("anxbar").style.backgroundColor = "#37474F"; break;
+  			case 8: document.getElementById("anxlvl").innerHTML = 8+"<div class=\"lvldesc\">You are distraught.</div>"; document.getElementById("anxtext").style.color = "#455A64"; document.getElementById("anxbar").style.backgroundColor = "#455A64"; break;
+  			case 7: document.getElementById("anxlvl").innerHTML = 7+"<div class=\"lvldesc\">You are fearful.</div>"; document.getElementById("anxtext").style.color = "#546E7A"; document.getElementById("anxbar").style.backgroundColor = "#546E7A"; break;
+  			case 6: document.getElementById("anxlvl").innerHTML = 6+"<div class=\"lvldesc\">You are uneasy.</div>"; document.getElementById("anxtext").style.color = "#607D8B"; document.getElementById("anxbar").style.backgroundColor = "#607D8B"; break;
+  			case 5: document.getElementById("anxlvl").innerHTML = 5+"<div class=\"lvldesc\">You feel a bit nervous.</div>"; document.getElementById("anxtext").style.color = "#78909C"; document.getElementById("anxbar").style.backgroundColor = "#78909C"; break;
+  			case 4: document.getElementById("anxlvl").innerHTML = 4+"<div class=\"lvldesc\">You feel timid.</div>"; document.getElementById("anxtext").style.color = "#90A4AE"; document.getElementById("anxbar").style.backgroundColor = "#90A4AE"; break;
+  			case 3: document.getElementById("anxlvl").innerHTML = 3+"<div class=\"lvldesc\">You feel calm.</div>"; document.getElementById("anxtext").style.color = "#B0BEC5"; document.getElementById("anxbar").style.backgroundColor = "#B0BEC5"; break;
+  			case 2: document.getElementById("anxlvl").innerHTML = 2+"<div class=\"lvldesc\">You feel serene.</div>"; document.getElementById("anxtext").style.color = "#CFD8DC"; document.getElementById("anxbar").style.backgroundColor = "#CFD8DC"; break;
+  			case 1: document.getElementById("anxlvl").innerHTML = 1+"<div class=\"lvldesc\">You feel optimistic.</div>"; document.getElementById("anxtext").style.color = "#ECEFF1"; document.getElementById("anxbar").style.backgroundColor = "#ECEFF1"; break;
+  			case 0: document.getElementById("anxtext").style.color = "#F5F5F5"; document.getElementById("anxbar").style.backgroundColor = "#F5F5F5";
+  							if(anxiety == 0){document.getElementById("anxlvl").innerHTML = 0+"<div class=\"lvldesc\">You know nothing can hold you down.</div>";}
+  							else{document.getElementById("anxlvl").innerHTML = 0+"<div class=\"lvldesc\">You feel very confident.</div>";} break;
+  			default: document.getElementById("anxlvl").innerHTML = "error<div class=\"lvldesc\">How did you manage this?</div>";
+  		}
+  		switch(Math.trunc(intelligence/100)){
+  			case 10: document.getElementById("intlvl").innerHTML = 10+"<div class=\"lvldesc\">You are a genius.</div>"; document.getElementById("intbar").style.width = 100+"%"; document.getElementById("inttext").style.color = "#01579B"; document.getElementById("intbar").style.backgroundColor = "#01579B"; break;
+  			case 9: document.getElementById("intlvl").innerHTML = 9+"<div class=\"lvldesc\">You are brilliant.</div>";+"%"; document.getElementById("inttext").style.color = "#0277BD"; document.getElementById("intbar").style.backgroundColor = "#0277BD"; break;
+  			case 8: document.getElementById("intlvl").innerHTML = 8+"<div class=\"lvldesc\">You are smart.</div>"; document.getElementById("inttext").style.color = "#0288D1"; document.getElementById("intbar").style.backgroundColor = "#0288D1"; break;
+  			case 7: document.getElementById("intlvl").innerHTML = 7+"<div class=\"lvldesc\">You are clever.</div>"; document.getElementById("inttext").style.color = "#039BE5"; document.getElementById("intbar").style.backgroundColor = "#039BE5"; break;
+  			case 6: document.getElementById("intlvl").innerHTML = 6+"<div class=\"lvldesc\">You are bright.</div>"; document.getElementById("inttext").style.color = "#03A9F4"; document.getElementById("intbar").style.backgroundColor = "#03A9F4"; break;
+  			case 5: document.getElementById("intlvl").innerHTML = 5+"<div class=\"lvldesc\">You are mediocre.</div>"; document.getElementById("inttext").style.color = "#29B6F6"; document.getElementById("intbar").style.backgroundColor = "#29B6F6"; break;
+  			case 4: document.getElementById("intlvl").innerHTML = 4+"<div class=\"lvldesc\">You are a bit dull.</div>"; document.getElementById("inttext").style.color = "#4FC3F7"; document.getElementById("intbar").style.backgroundColor = "#4FC3F7"; break;
+  			case 3: document.getElementById("intlvl").innerHTML = 3+"<div class=\"lvldesc\">You are ignorant.</div>"; document.getElementById("inttext").style.color = "#81D4FA"; document.getElementById("intbar").style.backgroundColor = "#81D4FA"; break;
+  			case 2: document.getElementById("intlvl").innerHTML = 2+"<div class=\"lvldesc\">You are a fool.</div>"; document.getElementById("inttext").style.color = "#B3E5FC"; document.getElementById("intbar").style.backgroundColor = "#B3E5FC"; break;
+  			case 1: document.getElementById("intlvl").innerHTML = 1+"<div class=\"lvldesc\">You are stupid.</div>"; document.getElementById("inttext").style.color = "#E1F5FE"; document.getElementById("intbar").style.backgroundColor = "#E1F5FE"; break;
+  			case 0: document.getElementById("inttext").style.color = "#F5F5F5"; document.getElementById("intbar").style.backgroundColor = "#F5F5F5";
+  							if(intelligence == 0){document.getElementById("intlvl").innerHTML = 0+"<div class=\"lvldesc\">You are an ignoramus.</div>";}
+  							else{document.getElementById("intlvl").innerHTML = 0+"<div class=\"lvldesc\">You are a moron.</div>";} break;
+  			default: document.getElementById("intlvl").innerHTML = "error<div class=\"lvldesc\">How did you manage this?</div>";
+  		}
+  	}
+  	function changestr(change) {
+  		strength+=change;
+  		if(strength<0) {strength = 0;}
+  		if(strength>1000) {strength = 1000;}
+  		fixStats();
+  	}
+  	function changemor(change) {
+  		morality+=change;
+  		if(morality<0) {morality = 0;}
+  		if(morality>1000) {morality = 1000;}
+  		fixStats();
+  	}
+  	function changethv(change) {
+  		thievery+=change;
+  		if(thievery<0) {thievery = 0;}
+  		if(thievery>1000) {thievery = 1000;}
+  		fixStats();
+  	}
+  	function changenrg(change) {
+  		energy+=change;
+  		if(energy<0) {energy = 0;}
+  		if(energy>1000) {energy = 1000;}
+  		fixStats();
+  	}
+  	function changescl(change) {
+  		social+=change;
+  		if(social<0) {social = 0;}
+  		if(social>1000) {social = 1000;}
+  		fixStats();
+  	}
+  	function changeanx(change) {
+  		anxiety+=change;
+  		if(anxiety<0) {anxiety = 0;}
+  		if(anxiety>1000) {anxiety = 1000;}
+  		fixStats();
+  	}
+  	function changeint(change) {
+  		intelligence+=change;
+  		if(intelligence<0) {intelligence = 0;}
+  		if(intelligence>1000) {intelligence = 1000;}
+  		fixStats();
+  	}
+  	function game() {
+  		switch(area){
+  			case "bedroom": document.getElementById("main").innerHTML = "You find yourself in your bedroom. It gives you a sense of comfort.<br><br><br>For some reason there's a bunch of test buttons here.<br><br><a onclick=\"changestr(20);\" class=\"button\">+strength</a> <a onclick=\"changestr(-20);\" class=\"button\">-strength</a><div class=\"buttongap\">&nbsp</div><a onclick=\"changemor(20);\" class=\"button\">+morality</a> <a onclick=\"changemor(-20);\" class=\"button\">-morality</a><div class=\"buttongap\">&nbsp</div><a onclick=\"changethv(20);\" class=\"button\">+thievery</a> <a onclick=\"changethv(-20);\" class=\"button\">-thievery</a><div class=\"buttongap\">&nbsp</div><a onclick=\"changenrg(20);\" class=\"button\">+energy</a> <a onclick=\"changenrg(-20);\" class=\"button\">-energy</a><div class=\"buttongap\">&nbsp</div><a onclick=\"changescl(20);\" class=\"button\">+social</a> <a onclick=\"changescl(-20);\" class=\"button\">-social</a><div class=\"buttongap\">&nbsp</div><a onclick=\"changeanx(20);\" class=\"button\">+anxiety</a> <a onclick=\"changeanx(-20);\" class=\"button\">-anxiety</a><div class=\"buttongap\">&nbsp</div><a onclick=\"changeint(20);\" class=\"button\">+intelligence</a> <a onclick=\"changeint(-20);\" class=\"button\">-intelligence</a><br><br>There doesn't seem to be anything else here...<br>Not even a door..."; break;
+  			default: document.getElementById("main").innerHTML = "Aw heck, I didn't plan on you being at "+area;
+  		}
+  	}
 	</script>
 	<title>Life Simulator</title>
 	<link type="image/png" rel="icon" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABcWlDQ1BpY2MAACiRdZE9S8NQFIbfppZKrXTQQcQhQxWHFooFcZQIdqkObQWrLslt0gpJGpIUKa6Ci0PBQXTxa/Af6Cq4KgiCIog4+QP8WqTEc5tCi7Qn3JyH9573cO+5gJDVmeEMpADDdO1cRhJXi2ti+B0hRCAggLTMHGspv1hA3/h5pDqKhyTv1b+uZwyVVIcBgUHiWWbZLvE8cXbLtTjvEY+yilwiPiFO2HRA4luuKz6/cS77/MXZLuQWAIH3FMtdrHQxq9gG8TRx3NBrrH0efpOoaq7kKY/TmoCDHDKQIEJBDZvQ4SJJ2aSZ9falWr5lVMnD6G+hDpscZVTImyC1Rl1VyhrpKn066nzu/+fpaOkZv3tUAkKvnvc5CYT3gWbD835PPa95BgRfgGuz46/SnOa+SW90tPgxENsBLm86mnIAXO0CY8+WbMstKUhL0DTg4wIYLgIj90Bk3Z9Vex/nT0Bhm57oDjg8AqaoPrbxB74XZ+yfux1rAAAACXBIWXMAAA9hAAAPYQGoP6dpAAABRUlEQVRYw8VXMQ7DMAg0qEuWrv1a1+5d+4qs3bP2a127eHQTKZESCgZsp2GJZPngjA9DIDD2vt6nTyLLcHk9g9VGHyY8GIAbG52AM3AWDx6wRqIEj16wtJdbmwNB7qCQCQ6zE1EXy0kofn3CGbfYzz6QgnOCEcRpvR6WBHIOFLVDiUAlnxgctnIC3uqQDoBeJxwJa3AuC64MCCQmHVGxmUkUEfDcsWYnbUOM0eQoDj273nVdFodCqexmNAaGgw2JgtMfYqZ19RyfAVrTnqZUcP+JPkhYU0Ityha5J3KPLHCn3xCgWWhJgmnXtl7QgkRuVhBbqwZqFTzb22tJWPHQwkkNDrRm87k9XCRo8PPQg7kZWcasnDBLMobGR0MlUXpd6Hi5RBI1glU1QAcK76+X5t/dDZXR2/1elA6l0CJ41UREAkKpny9UNMlvxdDWAwAAAABJRU5ErkJggg==" /> <!--I don't want to deal with multiple files, so we're going with imbeds.-->
 </head>
-<body onload="startupfix()"> <!--Don't break this. Please.-->
+<body onload="startupfix();"> <!--Don't break this. Please.-->
 <div id="main" class="page">
-  <p>There's something here.</p>
-  <br>
-  one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty twenty-one twenty-two twenty-three twenty-four twenty-five twenty-six twenty-seven twenty-eight twenty-nine thirty thirty-one thirty-two thirty-three thirty-four thirty-five thirty-six thirty-seven thirty-eight thirty-nine fourty
-  <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-  <p>There's also something here.</p>
+	<!--The main part of the page. The stuff to the right of the sidebar.-->
 </div>
 <div id="theSidebar" class="sidebar"> <!--This sidebar layer is just a background rectangle because I don't know what I'm doing.-->
 </div>
 <div id="theSidebarStuff" class="sidebarstuff"> <!--Oh god, I'm going to have to change this stuff a lot, aren't I?-->
-	<p style="font-size: 28px;"><b>Life Simulator</b></p>
-	<br><br><br>
-	<p>Life Simulator Version 0.0.1</p>
-	<p>I guess this would be called a<br>'pre-alpha' or something like that.</p>
-	<br><br>
-	<p>GitHub link: <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" class="link"><span title="It's just not here.">Nonexistent</span></a></p>
-	<p>Steal all my code if you want.<br>I don't care.</p>
-	<br><br>
-	<p>I should add an options button or something here at some point.</p>
-	<img width=300 height=32 src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABcWlDQ1BpY2MAACiRdZE9S8NQFIbfppZKrXTQQcQhQxWHFooFcZQIdqkObQWrLslt0gpJGpIUKa6Ci0PBQXTxa/Af6Cq4KgiCIog4+QP8WqTEc5tCi7Qn3JyH9573cO+5gJDVmeEMpADDdO1cRhJXi2ti+B0hRCAggLTMHGspv1hA3/h5pDqKhyTv1b+uZwyVVIcBgUHiWWbZLvE8cXbLtTjvEY+yilwiPiFO2HRA4luuKz6/cS77/MXZLuQWAIH3FMtdrHQxq9gG8TRx3NBrrH0efpOoaq7kKY/TmoCDHDKQIEJBDZvQ4SJJ2aSZ9falWr5lVMnD6G+hDpscZVTImyC1Rl1VyhrpKn066nzu/+fpaOkZv3tUAkKvnvc5CYT3gWbD835PPa95BgRfgGuz46/SnOa+SW90tPgxENsBLm86mnIAXO0CY8+WbMstKUhL0DTg4wIYLgIj90Bk3Z9Vex/nT0Bhm57oDjg8AqaoPrbxB74XZ+yfux1rAAAACXBIWXMAAA9hAAAPYQGoP6dpAAABRUlEQVRYw8VXMQ7DMAg0qEuWrv1a1+5d+4qs3bP2a127eHQTKZESCgZsp2GJZPngjA9DIDD2vt6nTyLLcHk9g9VGHyY8GIAbG52AM3AWDx6wRqIEj16wtJdbmwNB7qCQCQ6zE1EXy0kofn3CGbfYzz6QgnOCEcRpvR6WBHIOFLVDiUAlnxgctnIC3uqQDoBeJxwJa3AuC64MCCQmHVGxmUkUEfDcsWYnbUOM0eQoDj273nVdFodCqexmNAaGgw2JgtMfYqZ19RyfAVrTnqZUcP+JPkhYU0Ityha5J3KPLHCn3xCgWWhJgmnXtl7QgkRuVhBbqwZqFTzb22tJWPHQwkkNDrRm87k9XCRo8PPQg7kZWcasnDBLMobGR0MlUXpd6Hi5RBI1glU1QAcK76+X5t/dDZXR2/1elA6l0CJ41UREAkKpny9UNMlvxdDWAwAAAABJRU5ErkJggg==">
-	<br>
-	Wow.
+	<!--The left part of the page. It's a cool sidebar.-->
+</div>
+<div id="omenu" class="menus">
+	<p onclick="optionsMenu();" class="button">Close</p> <br>
+	There are no options yet. Maybe I'll add some in the future. Maybe. I also need a bit more filler text here to make sure everything is working properly.
+	<br><br><br><br><br><br><br><br>
+	I guess this is almost an option. You could also just refresh the page.
+	<br> <p onclick="mainMenu(); optionsMenu();" class="button"><span title="Go back to the main menu.">Main Menu</span></p>
+</div>
+<div id="smenu" class="menus">
+	<p onclick="saveMenu();" class="button">Close</p> <br>
+	No saves either, sorry. I also need lots of filler text here to make sure this is working properly as well. I'm don't know how much to add tho...
 </div>
 <div> <!--Keep this at the bottom so it stays as the top layer.-->
-<a id="slider" class="slidebtn" onclick= "sidebar()"> <span title="Toggle the sidebar"><</span> </a>
-<div>
+<a id="slider" class="slidebtn" onclick= "sidebar();"> <span title="Toggle the sidebar"><</span> </a>
+</div>
 </body>
